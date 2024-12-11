@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Delete Note</title>
+</head>
+<body>
+    <h1>Are you sure you want to delete this note?</h1>
+    <p><strong>Title:</strong> {{ note.title }}</p>
+    <p><strong>Content:</strong> {{ note.content }}</p>
+
+    {% if note.image %}
+        <p><strong>Image:</strong></p>
+        <img src="{{ note.image.url }}" alt="Note Image" width="300"><br>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Yes, delete</button>
+    </form>
+    <a href="/">No, go back</a>
+</body>
+</html>

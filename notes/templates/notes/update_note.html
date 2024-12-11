@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Update Note</title>
+</head>
+<body>
+    <h1>Update Note</h1>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label for="title">Title:</label>
+        <input type="text" id="title" name="title" value="{{ note.title }}" required><br><br>
+        
+        <label for="content">Content:</label><br>
+        <textarea id="content" name="content" rows="5" cols="30">{{ note.content }}</textarea><br><br>
+        
+        {% if note.image %}
+            <p>Current Image:</p>
+            <img src="{{ note.image.url }}" alt="Current Note Image" width="300"><br>
+        {% endif %}
+
+        <label for="image">New Image (optional):</label>
+        <input type="file" name="image" id="image" accept="image/*"><br>
+    
+        
+        <button type="submit">Update Note</button>
+    </form>
+    <a href="/">Back to Notes</a>
+</body>
+</html>

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Note</title>
+</head>
+<body>
+    <h1>Create Note</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label for="title">Title:</label>
+        <input type="text" id="title" name="title" required><br><br>
+        <label for="content">Content:</label><br>
+        <textarea id="content" name="content" rows="5" cols="30"></textarea><br><br>
+
+        <label for="image">Image:</label>
+        <input type="file" name="image" id="image" accept="image/*"><br>
+    
+        <button type="submit">Add Note</button>
+    </form>
+    <a href="/">Back to Notes</a>
+</body>
+</html>

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Notebook</title>
+</head>
+<body>
+    <h1>Notes</h1>
+    <a href="/create/">Add New Note</a>
+    <ul>
+        {% for note in notes %}
+        <li>
+            {{ note.title }}: {{ note.content }}
+            <a href="/update/{{ note.id }}/">Edit</a>
+            <a href="/delete/{{ note.id }}/">Delete</a>
+        </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
