@@ -60,6 +60,11 @@ INSTALLED_APPS = [
     'accounts',
 ]
 
+# Для работы с Docker
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
+
 AUTH_USER_MODEL = 'accounts.CustomUser'
 # Where to store uploaded files (locally or remotely)
 MEDIA_URL = '/media/'
@@ -107,7 +112,7 @@ DATABASES = {
         'NAME': 'djnote',
         'USER': 'postgres',  # Замени на своё имя пользователя
         'PASSWORD': '1234',  # Замени на свой пароль
-        'HOST': 'localhost',
+        'HOST': 'db',
         'PORT': '5432',
     }
 }
@@ -147,7 +152,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
