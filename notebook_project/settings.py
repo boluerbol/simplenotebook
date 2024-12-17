@@ -13,6 +13,11 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from datetime import timedelta
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+# Загружаем переменные окружения из .env файла
+load_dotenv()
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,7 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-g&+&n@qjgof#!!y6xlrcg23rl_u&&40j6ky%b3_$qy1)2#+m$3'
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -60,10 +65,6 @@ INSTALLED_APPS = [
     'accounts',
 ]
 
-# Для работы с Docker
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
-]
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
 # Where to store uploaded files (locally or remotely)
@@ -164,5 +165,5 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'boluerbol@gmail.com'  # Укажи свой Gmail
-EMAIL_HOST_PASSWORD = 'qmwm lfuq wqzc besm'  # Укажи пароль
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')  # Укажи свой Gmail
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_PASSWORD') # Укажи пароль
