@@ -3,73 +3,92 @@ from .models import Note
 from .serializers import NoteSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from rest_framework.views import APIView
 from django.contrib.auth.decorators import login_required
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
 
-# Получить все заметки для всех пользователей (если нужно для API)
-@api_view(['GET'])
-def get_all_notes(request):
-    notes = Note.objects.all()
-    serializer = NoteSerializer(notes, many=True)
-    return Response(serializer.data)
 
-# Отображение всех заметок для текущего пользователя на главной странице
+
+# Home view for authenticated users to view all their notes (not really needed for API)
 def home_view(request):
     if request.user.is_authenticated:
-        notes = Note.objects.filter(user=request.user)  # Фильтруем заметки по текущему пользователю
+        notes = Note.objects.filter(user=request.user)
     else:
-        notes = []  # Для неаутентифицированных пользователей заметки пустые
+        notes = []  # Empty list for unauthenticated users
     return render(request, 'home.html', {'notes': notes})
 
-# Создание заметки (доступно только авторизованным пользователям)
-@login_required
-def create_note(request):
-    if request.method == 'POST':
-        title = request.POST.get('title')
-        content = request.POST.get('content')
-        image = request.FILES.get('image')  # Get the uploaded image
+# Create a new note (available only for authenticated users)
+class CreateNoteAPIView(APIView):
+    permission_classes = [IsAuthenticated]
 
-        if title and content:
-            Note.objects.create(
-                user=request.user, 
-                title=title, 
-                content=content,
-                image=image)
-            return redirect('home')  # После создания заметки перенаправляем на главную страницу
-    return render(request, 'notes/create_note.html')  # Отображаем форму для создания заметки
+    def post(self, request):
+        title = request.data.get('title')
+        content = request.data.get('content')
+        image = request.FILES.get('image')
 
-# Обновление заметки (доступно только авторизованным пользователям)
-@login_required
-def update_note(request, note_id):
-    note = get_object_or_404(Note, id=note_id)
+        if not title or not content:
+            return Response({"error": "Title and content are required."}, status=status.HTTP_400_BAD_REQUEST)
 
-    # Проверяем, что пользователь является владельцем заметки
-    if note.user != request.user:
-        return redirect('home')  # Перенаправляем, если пользователь пытается изменить чужую заметку
+        # Check for duplicate title
+        if Note.objects.filter(user=request.user, title=title).exists():
+            return Response({"error": "A note with this title already exists."}, status=status.HTTP_400_BAD_REQUEST)
 
-    if request.method == "POST":
-        note.title = request.POST.get('title')
-        note.content = request.POST.get('content')
-        # Update image if provided
-        if 'image' in request.FILES:
-            note.image = request.FILES['image']
+        note = Note.objects.create(
+            user=request.user,
+            title=title,
+            content=content,
+            image=image
+        )
+        serializer = NoteSerializer(note)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+# Update an existing note (available only for authenticated users)
+class UpdateNoteAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, note_id):
+        note = get_object_or_404(Note, id=note_id)
+
+        if note.user != request.user:
+            return Response({"error": "You do not have permission to update this note."}, status=status.HTTP_403_FORBIDDEN)
+
+        new_title = request.data.get('title', note.title)
+        content = request.data.get('content', note.content)
+        image = request.FILES.get('image')
+
+        # Check for duplicate title (excluding the current note)
+        if Note.objects.filter(user=request.user, title=new_title).exclude(id=note.id).exists():
+            return Response({"error": "A note with this title already exists."}, status=status.HTTP_400_BAD_REQUEST)
+
+        note.title = new_title
+        note.content = content
+        if image:
+            note.image = image
         note.save()
-        return redirect('home')  # Перенаправляем на главную страницу после обновления
-    return render(request, 'notes/update_note.html', {'note': note})
 
-# Удаление заметки (доступно только авторизованным пользователям)
-@login_required
-def delete_note(request, note_id):
-    note = get_object_or_404(Note, id=note_id)
+        serializer = NoteSerializer(note)
+        return Response(serializer.data)
 
-    # Проверяем, что пользователь является владельцем заметки
-    if note.user != request.user:
-        return redirect('home')  # Перенаправляем, если пользователь пытается удалить чужую заметку
 
-    if request.method == "POST":
+# Delete a note (available only for authenticated users)
+class DeleteNoteAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, note_id):
+        note = get_object_or_404(Note, id=note_id)
+
+        if note.user != request.user:
+            return Response({"error": "You do not have permission to delete this note."}, status=status.HTTP_403_FORBIDDEN)
+
         note.delete()
-        return redirect('home')  # Перенаправляем на главную страницу после удаления
-    return render(request, 'notes/delete_note.html', {'note': note})
+        return Response({"message": "Note deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
 
-def index(request):
-    notes = Note.objects.all()
-    return render(request, 'notes/index.html', {'notes': notes})
+class UserNotesView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        # Filter notes by the logged-in user
+        notes = Note.objects.filter(user=request.user)
+        serializer = NoteSerializer(notes, many=True)
+        return Response(serializer.data)
+    

@@ -1,14 +1,11 @@
 from django.urls import path
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
-)
-from .views import login_view, logout_view, register_view, reset_password_view, token_view
+from .views import LoginAPIView, LogoutAPIView, RegisterAPIView, ResetPasswordAPIView,CurrentUserAPIView, ResetPasswordConfirmAPIView
 
 urlpatterns = [
-    path('register/', register_view, name='register_form'),
-    path('login/', login_view, name='login_form'),
-    path('reset-password/', reset_password_view, name='reset_password_form'),
-    path('tokens/', token_view, name='tokens'),
-    path('logout/', logout_view, name='logout'), 
+    path('register/', RegisterAPIView.as_view(), name='accounts_register'),
+    path('login/', LoginAPIView.as_view(), name='accounts_login'),
+    path('logout/', LogoutAPIView.as_view(), name='accounts_logout'),
+    path('reset-password/', ResetPasswordAPIView.as_view(), name='password_reset_request'),  # For email submission
+    path('reset-password/<uidb64>/<token>/', ResetPasswordConfirmAPIView.as_view(), name='password_reset_confirm'),  # For resetting password
+    path('current-user/', CurrentUserAPIView.as_view(), name='current-user'),
 ]

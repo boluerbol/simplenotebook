@@ -44,7 +44,7 @@ REST_FRAMEWORK = {
 
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
 
@@ -63,7 +63,10 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'djoser',
     'accounts',
+    'corsheaders',
 ]
+
+
 
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
@@ -81,7 +84,18 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
+
+CORS_ALLOWED_ORIGINS = [
+    'https://frontt.netlify.app',
+    'http://localhost:5173',  # Адрес вашего фронтенда
+    'http://127.0.0.1:8000',  # Адрес вашего Django API
+]
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:5175',
+]   
+FRONTEND_URL = 'http://localhost:5173'
 
 ROOT_URLCONF = 'notebook_project.urls'
 
@@ -149,6 +163,9 @@ USE_I18N = True
 
 USE_TZ = True
 
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media') 
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/

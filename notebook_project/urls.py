@@ -18,12 +18,17 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls.static import static
+from accounts.views import ResetPasswordAPIView, ResetPasswordConfirmAPIView
 from notes.views import home_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', home_view, name='home'), 
     path('api/accounts/', include('accounts.urls')),
-    path('notes/', include('notes.urls')),  # Маршруты заметок
-    path('password_reset/', include('django.contrib.auth.urls')),  # Встроенные маршруты для сброса пароля
+    path('api/notes/', include('notes.urls')),  # Маршруты заметок
+    # path('password_reset/', include('django.contrib.auth.urls')),  # Встроенные маршруты для сброса пароля
+    # path('reset-password/<uidb64>/<token>/', ResetPasswordAPIView.as_view(), name='password_reset_confirm'),
+    # in your Django urls.py
+    # path('reset-password/<uidb64>/<token>/', ResetPasswordConfirmAPIView.as_view(), name='reset-password-confirm'),
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
